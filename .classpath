@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="generated"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/failureaccess-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-all-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-alts-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-api-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-auth-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-context-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-core-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-grpclb-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-netty-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-netty-shaded-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-okhttp-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-protobuf-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-protobuf-lite-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-rls-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-services-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-stub-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-testing-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/grpc-xds-1.48.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/guava-31.0.1-jre.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/perfmark-api-0.25.0.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/protobuf-java-3.21.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/protobuf-java-util-3.21.1.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
