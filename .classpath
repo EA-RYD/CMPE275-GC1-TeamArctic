@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="lib-ref2/perfmark-api-0.25.0.jar"/>
 	<classpathentry kind="lib" path="lib-ref2/protobuf-java-3.21.1.jar"/>
 	<classpathentry kind="lib" path="lib-ref2/protobuf-java-util-3.21.1.jar"/>
+	<classpathentry kind="lib" path="lib-ref2/json-java.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
