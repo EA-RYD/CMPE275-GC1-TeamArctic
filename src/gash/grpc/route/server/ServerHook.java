@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.json.JSONObject;
 
-// framework 
+// framework hook
 public class ServerHook {
     private LinkedBlockingDeque<JSONObject> que;
 
@@ -27,6 +27,7 @@ public class ServerHook {
     private static final Route constructRequest(JSONObject json) {
         route.Route r = null;
         try {
+            // TODO: add destination to JSON
             Route.Builder bld = Route.newBuilder();
             JsonFormat.parser().merge(json.toString(), bld);
             //bld.setPayload(ByteString.copyFrom(((String) json.get("Payload")).getBytes()));
@@ -58,6 +59,9 @@ public class ServerHook {
 		//TODO
 	}
 
+    // handles reply/response from server
+    private static final void response(Route Reply) {
+        // TODO
 
-
+    }
 }

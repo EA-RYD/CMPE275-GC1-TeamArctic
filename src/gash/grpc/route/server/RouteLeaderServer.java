@@ -3,7 +3,6 @@ package gash.grpc.route.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import com.google.protobuf.ByteString;
@@ -17,14 +16,70 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class RouteLeaderServer extends RouteServiceImplBase {
-
-    private class HeartBeat { // dummy temp
-    }
+    /**
+     * monitors work performed
+     * sends heartbeat requests and accepts them
+     * 
+    */
+    public static class HBMonitor extends Thread {
     
-    // route.Route
+    }
 
-    private LinkedBlockingDeque<route.Route> que; 
-    private ConcurrentHashMap<Integer,HeartBeat> networkStatus;
+    /**
+     * Puts work into queue
+     * 
+    */
+    public static class Put extends Thread {
+        private boolean _verbose = false;
+        private boolean _isRunning = true;
+        private RouteServiceImplBase _BaseServer;
+        private route.Route request;
+
+        public Put(RouteServiceImplBase comm, route.Route msg) { 
+            // TODO 
+        }
+
+        public void shutdown() { 
+              // TODO 
+        }
+
+        @Override
+        public void run() {
+              // TODO 
+        }   
+    }
+
+    /**
+     * takes out work from queue,
+     * sends forward request that is passed until
+     * receiving server is reached
+    */
+    public static class Take extends Thread {
+        private boolean _verbose = false;
+        private boolean _isRunning = true;
+        private RouteServiceImplBase _BaseServer;
+        private RouteServiceImplBase _ReceivingServer;
+
+        // server's internal queue (might not need in our case)
+        private LinkedBlockingDeque<route.Route> que;
+
+        public Take(RouteServerImpl base, RouteServerImpl destination) {
+              // TODO 
+        }
+        
+        public void shutdown() { 
+              // TODO 
+        }
+
+        @Override
+        public void run() { 
+              // TODO 
+        }
+        
+    }
+
+    protected LinkedBlockingDeque<route.Route> que; 
+    protected ConcurrentHashMap<Integer,HeartBeat> networkStatus;
     private Server svr;
     // maybe there should we worker threads that take and put from que?
 
@@ -51,6 +106,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         //someone else writing config file
         return null;
     }
+
 
 
 
