@@ -22,7 +22,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
      * 
     */
     public static class HBMonitor extends Thread {
-    
+        // TODO
     }
 
     /**
@@ -79,7 +79,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     }
 
     protected LinkedBlockingDeque<route.Route> que; 
-    protected ConcurrentHashMap<Integer,HeartBeat> networkStatus;
+    protected ConcurrentHashMap<Integer,HeartBeatServer> networkStatus;
     private Server svr;
     // maybe there should we worker threads that take and put from que?
 
