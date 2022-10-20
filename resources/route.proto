@@ -19,6 +19,6 @@ message Route {
   int64 origin = 2;
   int64 destination = 3;
   string path = 4;
-  bytes payload = 5; //Generalized
+  int32 workType = 5;
+  bytes payload = 6; //Generalized
 }
-

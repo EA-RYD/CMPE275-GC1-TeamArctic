@@ -27,12 +27,12 @@ public class RouteClient {
 	private static long clientID = 501;
 	private static int port = 2345;
 
-	private static final Route constructMessage(int mID, String path, String payload) {
+	private static final Route constructMessage(int mID, String path, String payload, int workType) {
 		Route.Builder bld = Route.newBuilder();
 		bld.setId(mID);
 		bld.setOrigin(RouteClient.clientID);
 		bld.setPath(path);
-
+		bld.setWorkType(workType);
 		byte[] hello = payload.getBytes();
 		bld.setPayload(ByteString.copyFrom(hello));
 
@@ -42,6 +42,7 @@ public class RouteClient {
 	private static final void response(Route reply) {
 		// TODO handle the reply/response from the server	
 		var payload = new String(reply.getPayload().toByteArray());
+		System.out.println("current worktype: " + reply.getWorkType());
 		System.out.println("reply: " + reply.getId() + ", from: " + reply.getOrigin() + ", payload: " + payload);
 	}
 	
@@ -51,7 +52,7 @@ public class RouteClient {
 
 		final int I = 10;
 		for (int i = 0; i < I; i++) {
-			var msg = RouteClient.constructMessage(i, "/to/somewhere", "hello");
+			var msg = RouteClient.constructMessage(i, "/to/somewhere", "hello", i % 6 + 1);
 			
 			// blocking!
 			var r = stub.request(msg);

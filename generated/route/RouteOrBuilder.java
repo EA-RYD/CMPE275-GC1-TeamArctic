@@ -8,6 +8,10 @@ public interface RouteOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
+   * <pre>
+   *Used to reference the message being sent
+   * </pre>
+   *
    * <code>int64 id = 1;</code>
    * @return The id.
    */
@@ -38,7 +42,17 @@ public interface RouteOrBuilder extends
       getPathBytes();
 
   /**
-   * <code>bytes payload = 5;</code>
+   * <code>int32 workType = 5;</code>
+   * @return The workType.
+   */
+  int getWorkType();
+
+  /**
+   * <pre>
+   *Generalized
+   * </pre>
+   *
+   * <code>bytes payload = 6;</code>
    * @return The payload.
    */
   com.google.protobuf.ByteString getPayload();

@@ -71,7 +71,7 @@ public class RouteServerImpl extends RouteServiceImplBase {
 	protected ByteString process(route.Route msg) {
 		// TODO placeholder
 		String content = new String(msg.getPayload().toByteArray());
-		System.out.println("-- got: " + msg.getOrigin() + ", path: " + msg.getPath() + ", with: " + content);
+		System.out.println("-- got: " + msg.getOrigin() + ", worktype: " + msg.getWorkType() + ", with: " + content);
 
 		// TODO complete processing
 		final String blank = "blank";
@@ -167,6 +167,11 @@ public class RouteServerImpl extends RouteServiceImplBase {
 			//remove in place of non-blocking?
 			ack.setId(RouteServer.getInstance().getNextMessageID());
 			ack.setOrigin(RouteServer.getInstance().getServerID());
+			if (w.needProcess()) {
+				ack.setWorkType(5);
+			} else {
+				ack.setWorkType(request.getWorkType());
+			}
 			ack.setDestination(request.getOrigin());
 			ack.setPath(request.getPath());
 
