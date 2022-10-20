@@ -28,11 +28,11 @@ public final class RouteOuterClass {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\013route.proto\022\005route\"W\n\005Route\022\n\n\002id\030\001 \001(" +
-      "\003\022\016\n\006origin\030\002 \001(\003\022\023\n\013destination\030\003 \001(\003\022\014" +
-      "\n\004path\030\004 \001(\t\022\017\n\007payload\030\005 \001(\01427\n\014RouteSe" +
-      "rvice\022\'\n\007request\022\014.route.Route\032\014.route.R" +
-      "oute\"\000B\004H\001P\001b\006proto3"
+      "\n\013route.proto\022\005route\"e\n\005Route\022\n\n\002id\030\001 \001(" +
+      "\003\022\014\n\004type\030\002 \001(\t\022\016\n\006origin\030\003 \001(\003\022\023\n\013desti" +
+      "nation\030\004 \001(\003\022\014\n\004path\030\005 \001(\t\022\017\n\007payload\030\006 " +
+      "\001(\01427\n\014RouteService\022\'\n\007request\022\014.route.R" +
+      "oute\032\014.route.Route\"\000B\004H\001P\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -43,7 +43,7 @@ public final class RouteOuterClass {
     internal_static_route_Route_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_route_Route_descriptor,
-        new java.lang.String[] { "Id", "Origin", "Destination", "Path", "Payload", });
+        new java.lang.String[] { "Id", "Type", "Origin", "Destination", "Path", "Payload", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

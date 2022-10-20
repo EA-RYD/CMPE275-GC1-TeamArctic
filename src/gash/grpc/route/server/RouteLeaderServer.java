@@ -3,6 +3,7 @@ package gash.grpc.route.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import com.google.protobuf.ByteString;
@@ -19,15 +20,17 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     /**
      * monitors work performed
      * sends heartbeat requests and accepts them
-     * 
+     * similar to take in that is sends requests, just doesnt depend on que for requests, does on own
+     * (maybe dont need if take does similar thing)
     */
-    public static class HBMonitor extends Thread {
+    public static class HBMonitor extends Thread { 
         // TODO
+
     }
 
     /**
      * Puts work into queue
-     * 
+     * determines where to send request depending on request info
     */
     public static class Put extends Thread {
         private boolean _verbose = false;
@@ -46,6 +49,8 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         @Override
         public void run() {
               // TODO 
+              // get from client and maybe periodic hb goes in que but prob not
+              
         }   
     }
 
@@ -74,17 +79,35 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         @Override
         public void run() { 
               // TODO 
+              // acts on requests from que, maybe 
+
         }
         
     }
 
+    protected static final int serverID = 1; // should come from conf file eventually
     protected LinkedBlockingDeque<route.Route> que; 
     protected ConcurrentHashMap<Integer,HeartBeatServer> networkStatus;
+    protected static int heartbeatsUpdated = 0; //needs to be 4 for leader to distribute a server
+
     private Server svr;
     // maybe there should we worker threads that take and put from que?
 
     public static void main(String[] args) throws Exception {
-        //TODO
+        String path = args[0]; // path to config file
+		try {
+			Properties conf = RouteLeaderServer.getConfiguration(new File(path));
+			RouteServer.configure(conf);
+
+			/* Similar to the socket, waiting for a connection */
+			final RouteLeaderServer impl = new RouteLeaderServer();
+			impl.start();
+			impl.blockUntilShutdown();
+
+		} catch (IOException e) {
+			// TODO better error message
+			e.printStackTrace();
+		}
     }
 
     public void systemCheck() { //sends out requests for heartbeats
@@ -92,23 +115,21 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     }
 
     protected ByteString process(route.Route msg) { //process route object
-		// TODO 
+		// TODO placeholder
+		String content = new String(msg.getPayload().toByteArray());
+		System.out.println("-- got: " + msg.getOrigin() + ", path: " + msg.getPath() + ", with: " + content);
 
-		return null;
+		// TODO complete processing
+		final String blank = "blank";
+		byte[] raw = blank.getBytes();
+
+		return ByteString.copyFrom(raw);
 	}
 
     private void sendAcknowledgement(StreamObserver<route.Route> responseObserver) {
         // TODO
+        
     }
-
-    //configure server communication setup, maybe hashmap setup goes here?
-    private static Properties getConfiguration(final File path) throws IOException { 
-        //someone else writing config file
-        return null;
-    }
-
-
-
 
     /**
 	 * server received a message!
@@ -121,22 +142,71 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         // TODO
     }
 
+    private static final route.Route constructMessage(int mID, String path, String payload, String type, int destination) {
+		route.Route.Builder bld = route.Route.newBuilder();
+		bld.setId(mID);
+		bld.setOrigin(RouteLeaderServer.serverID);
+		bld.setPath(path);
+        bld.setType(type);
+        bld.setDestination(destination);
+		bld.setPayload(ByteString.copyFrom(payload.getBytes();));
+		return bld.build();
+	}
+
+    // Message has valid type
     private boolean verify(route.Route request) {
-        // TODO
-		return true;
+        String[] validTypes = {"HeartBeat","Work"};
+		return Arrays.asList(validTypes).contains(request.getType());
 	}
 
     private void start() throws Exception {
-		// TODO
+		svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(new RouteLeaderServer())
+				.build();
+
+		System.out.println("-- starting Leader server");
+		svr.start();
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				RouteLeaderServer.this.stop();
+			}
+		});
 	}
 
     protected void stop() {
-        // TODO
+        svr.shutdown();
 	}
 
     private void blockUntilShutdown() throws Exception {
 		/* TODO what clean up is required? */
+        svr.awaitTermination();
 	}
 
+    /**
+	* Configuration of the server's identity, port, and role
+    configure server communication setup, maybe hashmap setup goes here?
 
+	*/
+	private static Properties getConfiguration(final File path) throws IOException {
+		if (!path.exists())
+			throw new IOException("missing file");
+
+		Properties rtn = new Properties();
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(path);
+			rtn.load(fis);
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		return rtn;
+	}
 }

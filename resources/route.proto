@@ -14,11 +14,13 @@ service RouteService {
 // and routing options can be added.
 
 //Data structure definition
+// TODO MENTION TO OTHERS THAT ERIC ADDED TYPE
 message Route {
   int64 id = 1; //Used to reference the message being sent
-  int64 origin = 2;
-  int64 destination = 3;
-  string path = 4;
-  bytes payload = 5; //Generalized
+  string type = 2;
+  int64 origin = 3;
+  int64 destination = 4;
+  string path = 5;
+  bytes payload = 6; //Generalized
 }
 

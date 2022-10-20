@@ -3,10 +3,10 @@ package route;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
+ * <pre>
+ *Can define APIs here
+ * </pre>
  */
-/*@javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.49.0)",
-    comments = "Source: route.proto")*/
 @io.grpc.stub.annotations.GrpcGenerated
 public final class RouteServiceGrpc {
 
@@ -91,6 +91,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static abstract class RouteServiceImplBase implements io.grpc.BindableService {
 
@@ -115,6 +118,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceStub extends io.grpc.stub.AbstractAsyncStub<RouteServiceStub> {
     private RouteServiceStub(
@@ -138,6 +144,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceBlockingStub extends io.grpc.stub.AbstractBlockingStub<RouteServiceBlockingStub> {
     private RouteServiceBlockingStub(
@@ -160,6 +169,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceFutureStub extends io.grpc.stub.AbstractFutureStub<RouteServiceFutureStub> {
     private RouteServiceFutureStub(

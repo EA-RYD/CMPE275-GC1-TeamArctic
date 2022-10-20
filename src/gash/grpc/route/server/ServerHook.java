@@ -21,7 +21,7 @@ public class ServerHook {
     private LinkedBlockingDeque<JSONObject> que;
 
     private static long clientID = 1; //prob doesnt go here
-    private static int port = 2345;
+    private static int port = 2345; // TODO need to change
 
     //json to proto route used to make request
     private static final Route constructRequest(JSONObject json) {
@@ -43,7 +43,9 @@ public class ServerHook {
     // put thread places request in server
     public void request(JSONObject json) {
         // TODO
-
+        ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteClient.port).usePlaintext().build();
+		RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
+        
     }
 
     // actually makes request to server 
@@ -57,6 +59,7 @@ public class ServerHook {
     // stop server
     protected void stop() {
 		//TODO
+
 	}
 
     // handles reply/response from server
