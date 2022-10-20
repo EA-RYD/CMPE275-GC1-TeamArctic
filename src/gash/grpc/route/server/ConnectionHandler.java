@@ -7,6 +7,16 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.json.JSONObject;
+
+import com.google.protobuf.ByteString;
+import com.google.protobuf.util.JsonFormat;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import route.Route;
+import route.RouteServiceGrpc;
+
 public class ConnectionHandler extends Thread {
 	private Socket connection;
 	private InputStream in = null;
@@ -27,6 +37,9 @@ public class ConnectionHandler extends Thread {
 			if (in == null || out == null)
 				throw new RuntimeException("Unable to get in/out streams");
 			
+			ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", 2345).usePlaintext().build();
+			RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
+			
 			while (true) {
 				String message;
 				if ((message = reader.readLine()) != null) {
@@ -35,6 +48,21 @@ public class ConnectionHandler extends Thread {
 				    System.out.flush();
 				    
 				    // convert message to JSONObject and pass it back to ServerHook?
+				    JSONObject json = new JSONObject(message);
+				    Route.Builder bld = Route.newBuilder();
+				    // JsonFormat.parser().merge(message, bld);
+		
+				    // not ideal, need to figure out how to encode payload as byte in JSONObject and use JSONFormat.parser()
+					bld.setId(json.getLong("id"));
+					bld.setOrigin(json.getLong("origin"));
+					bld.setPath(json.getString("path"));
+					bld.setWorkType(json.getInt("workType"));
+					byte[] payload = json.getString("payload").getBytes();
+					bld.setPayload(ByteString.copyFrom(payload));
+					
+				    // send to grpc server
+					Route r = stub.request(bld.build());
+				    
 				}
 			}
 		} catch (IOException e) {

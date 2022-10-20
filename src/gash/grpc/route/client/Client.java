@@ -9,6 +9,8 @@ import java.util.Properties;
 
 import org.json.JSONObject;
 
+import com.google.protobuf.ByteString;
+
 public class Client {
 	private static long clientID = 501;		// need to find out what this is for
 	private Properties setup;
@@ -40,14 +42,15 @@ public class Client {
 	}
 	
 	public void run() {	
-		int times = 10;
+		int times = 500;
 		for (int i = 0; i < times; i++) {
 			JSONObject json = new JSONObject();
 			json.put("id", i);
 			json.put("origin", Client.clientID);
+			json.put("destination", "somewhere");
 			json.put("path", "/to/somewhere");
-			json.put("workType" , "POST");
-			json.put("payload", "hello");
+			json.put("workType" , 1);
+			json.put("payload", "Hello");	// how to store it so that it is compatible with .proto type bytes?
 			
 			try {
 				out.write(json.toString());
