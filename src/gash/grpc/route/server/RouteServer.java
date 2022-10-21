@@ -31,6 +31,8 @@ public class RouteServer {
 	protected static Properties conf;
 	protected Long serverID;
 	protected Integer serverPort;
+	protected Integer serverDestination;
+	protected Integer leaderPort;
 	protected Long nextMessageID;
 
 	private RouteServer() {
@@ -65,6 +67,16 @@ public class RouteServer {
 		if (serverPort <= 1024)
 			throw new RuntimeException("server port must be above 1024");
 
+		tmp = conf.getProperty("server.destination");
+		if (tmp == null)
+			throw new RuntimeException("missing server destination");
+		serverDestination = Integer.parseInt(tmp);
+
+		tmp = conf.getProperty("server.leader");
+		if (tmp == null)
+			throw new RuntimeException("missing leader port");
+		leaderPort = Integer.parseInt(tmp);
+
 		nextMessageID = 0L;
 	}
 
@@ -82,5 +94,13 @@ public class RouteServer {
 
 	public Integer getServerPort() {
 		return serverPort;
+	}
+
+	public Integer getServerDestination() {
+		return serverDestination;
+	}
+
+	public Integer getLeaderPort() {
+		return leaderPort;
 	}
 }
