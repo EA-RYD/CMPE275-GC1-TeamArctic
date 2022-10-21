@@ -32,6 +32,7 @@ public class RouteClient {
 		bld.setId(mID);
 		bld.setOrigin(RouteClient.clientID);
 		bld.setPath(path);
+		bld.setDestination(2355);
 
 		byte[] hello = payload.getBytes();
 		bld.setPayload(ByteString.copyFrom(hello));
@@ -49,7 +50,7 @@ public class RouteClient {
 		ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteClient.port).usePlaintext().build();
 		RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
 
-		final int I = 10;
+		/*final int I = 10;
 		for (int i = 0; i < I; i++) {
 			var msg = RouteClient.constructMessage(i, "/to/somewhere", "hello");
 			
@@ -57,7 +58,12 @@ public class RouteClient {
 			var r = stub.request(msg);
 			response(r);
 			
-		}
+		}*/
+		var msg = RouteClient.constructMessage(1, "/to/somewhere", "hello");
+			
+		// blocking!
+		var r = stub.request(msg);
+		response(r);
 
 		ch.shutdown();
 	}
