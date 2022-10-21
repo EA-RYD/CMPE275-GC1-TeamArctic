@@ -8,9 +8,15 @@ import java.util.Properties;
 
 import com.google.protobuf.ByteString;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import route.Route;
+import route.RouteServiceGrpc;
+
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import io.grpc.stub.InternalClientCalls.StubType;
 import route.RouteServiceGrpc.RouteServiceImplBase;
 
 /**
@@ -69,9 +75,30 @@ public class RouteServerImpl extends RouteServiceImplBase {
 
 
 	protected ByteString process(route.Route msg) {
+
+		long current_port = RouteServer.getInstance().getServerPort();
 		// TODO placeholder
 		String content = new String(msg.getPayload().toByteArray());
-		System.out.println("-- got: " + msg.getOrigin() + ", path: " + msg.getPath() + ", with: " + content);
+		System.out.println("Message now at: " + current_port);
+		System.out.println("Message destination: " + msg.getDestination());
+
+		/* leader server
+		if(current_port == RouteServer.getInstance().getLeaderPort()){
+		}
+		*/
+
+		if(msg.getDestination()!=current_port){
+			System.out.println("Message pass from "+ RouteServer.getInstance().getServerPort()+ " to "+ RouteServer.getInstance().getServerDestination());
+			ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteServer.getInstance().getServerDestination()).usePlaintext().build();				RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
+	
+			//var r = stub.request(msg);				
+			stub.request(msg);
+			// shutdown ch or not?
+			ch.shutdown();
+		}
+		else{
+			System.out.println("-- got: " + msg.getOrigin() + ", path: " + msg.getPath() + ", with: " + content);
+		}
 
 		// TODO complete processing
 		final String blank = "blank";
@@ -82,7 +109,6 @@ public class RouteServerImpl extends RouteServiceImplBase {
 
 	public static void main(String[] args) throws Exception {
 		// TODO check args!
-
 		String path = args[0];
 		try {
 			Properties conf = RouteServerImpl.getConfiguration(new File(path));
@@ -105,6 +131,15 @@ public class RouteServerImpl extends RouteServiceImplBase {
 
 		System.out.println("-- starting server");
 		svr.start();
+		System.out.println("Server start at port: " + svr.getPort());
+		if (svr.getPort() == RouteServer.getInstance().getLeaderPort()){
+			System.out.println("This is the leader server");
+		}
+
+		System.out.println("Built channel from "+ RouteServer.getInstance().getServerPort()+ " to " + RouteServer.getInstance().getServerDestination());
+		
+		// ch could build here
+		//RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -167,8 +202,11 @@ public class RouteServerImpl extends RouteServiceImplBase {
 			//remove in place of non-blocking?
 			ack.setId(RouteServer.getInstance().getNextMessageID());
 			ack.setOrigin(RouteServer.getInstance().getServerID());
-			ack.setDestination(request.getOrigin());
+			//ack.setDestination(request.getOrigin());
+			ack.setDestination(RouteServer.getInstance().getServerDestination());
 			ack.setPath(request.getPath());
+			//System.out.println("Message now at: " + RouteServer.getInstance().getServerPort());
+			//System.out.println("Message destination: " + RouteServer.getInstance().getServerDestination());
 
 			//non-blocking handling of messages
 			//if (request.type == work) enqueueAsWork(request)
@@ -197,4 +235,5 @@ public class RouteServerImpl extends RouteServiceImplBase {
 	private boolean verify(route.Route request) {
 		return true;
 	}
+
 }
