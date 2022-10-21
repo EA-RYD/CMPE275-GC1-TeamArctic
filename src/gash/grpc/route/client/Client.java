@@ -1,6 +1,8 @@
 package gash.grpc.route.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -15,7 +17,9 @@ public class Client {
 	private static long clientID = 501;		// need to find out what this is for
 	private Properties setup;
 	private Socket socket;
+	private InputStreamReader in;
 	private OutputStreamWriter out;
+	private BufferedReader reader;
 	
 	public Client(Properties setup) {
 		this.setup = setup;
@@ -33,7 +37,9 @@ public class Client {
 		
 		try {
 			socket = new Socket(host, Integer.parseInt(port));
+			in = new InputStreamReader(socket.getInputStream());
 			out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+			reader = new BufferedReader(in);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -64,6 +70,15 @@ public class Client {
 		
 		while (true) {
 			// TODO wait for replies from server and ends once it has received all replies
+			try {
+				String response = reader.readLine();
+				System.out.println(response);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			// add a condition to break while loop
 		}
 	}
 	

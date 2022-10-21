@@ -43,13 +43,19 @@ public class ConnectionHandler extends Thread {
 			while (true) {
 				String message;
 				if ((message = reader.readLine()) != null) {
-				    //out.println(message);
+				    // out.println(message);
 					System.out.println("Received: " + message);
 				    System.out.flush();
 				    
 				    // convert message to JSONObject and pass it back to ServerHook?
 				    JSONObject json = new JSONObject(message);
 				    Route.Builder bld = Route.newBuilder();
+				    
+				    // let Client know ServerHook received message
+				    out.write("ServerHook received message: " + json.getLong("id"));
+				    out.write('\n');
+					out.flush();
+					
 				    // JsonFormat.parser().merge(message, bld);
 		
 				    // not ideal, need to figure out how to encode payload as byte in JSONObject and use JSONFormat.parser()
@@ -62,7 +68,6 @@ public class ConnectionHandler extends Thread {
 					
 				    // send to grpc server
 					Route r = stub.request(bld.build());
-				    
 				}
 			}
 		} catch (IOException e) {
