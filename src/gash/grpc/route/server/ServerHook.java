@@ -39,13 +39,13 @@ public class ServerHook {
     }
 
     // original client uses this 
-    //maybe just adds request to queue?
+    // maybe just adds request to queue?
     // put thread places request in server
     public void request(JSONObject json) {
         // TODO
         ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteClient.port).usePlaintext().build();
 		RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
-        
+
     }
 
     // actually makes request to server 
