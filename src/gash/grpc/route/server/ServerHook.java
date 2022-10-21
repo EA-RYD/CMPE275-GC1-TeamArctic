@@ -5,6 +5,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+import io.grpc.stub.StreamObservers;
 import route.Route;
 import route.RouteServiceGrpc;
 
@@ -67,4 +69,26 @@ public class ServerHook {
         // TODO
 
     }
+
+    StreamObserver<route.Route> newS = new StreamObserver<Route>() {
+
+        @Override
+        public void onCompleted() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void onError(Throwable arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void onNext(Route arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+    };
 }

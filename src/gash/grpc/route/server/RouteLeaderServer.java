@@ -3,8 +3,6 @@ package gash.grpc.route.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,7 +13,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-import io.grpc.xds.shaded.io.envoyproxy.envoy.api.v2.route.Route;
 import route.RouteServiceGrpc;
 import route.RouteServiceGrpc.RouteServiceImplBase;
 
@@ -32,29 +29,22 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     public static class HBMonitor extends Thread { 
     
         private boolean _isRunning = true;
-		private int workId;
+		private int hbId;
         private RouteServiceGrpc.RouteServiceStub comm;
-        private ArrayList<Integer> workerServers;
-
         
         public HBMonitor(RouteServiceGrpc.RouteServiceStub comm) {
-            this.workId = 0;
+            this.hbId = 0;
             this.comm = comm;
-            workerServers = new ArrayList<>();
-            // TODO CHANGE THESE TO VALID PORTS
-            workerServers.add(1);
-            workerServers.add(2);
-            workerServers.add(3);
-            workerServers.add(4);
         }
 
         // makes request to every worker server, every 2 sec for ever
+        // could make into 4 different threads each making request if want to improve speed later
         @Override
         public void run() {
             while(_isRunning) {
                 try {
-                    for (Integer port : workerServers) {
-                        route.Route msg = constructMessage(workId++, "null", "Send HB to Leader", "HeartBeat", port);
+                    for (int i = 2; i < 6; i++) {
+                        route.Route msg = constructMessage(hbId++, "null", "Send HB to Leader", 6, i, 1);
                         comm.request(msg, null);
                     }
                     Thread.sleep(3000); //sleeps for 3 seconds
@@ -77,10 +67,10 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     public static class Put extends Thread {
         private boolean _verbose = false;
         private LinkedBlockingDeque<QPair> que;
-        private ConcurrentHashMap<Integer,HeartBeatServer> map;
+        private ConcurrentHashMap<Integer,Integer> map;
         private QPair msg;
 
-        public Put(LinkedBlockingDeque<QPair> que, ConcurrentHashMap<Integer,HeartBeatServer> map, route.Route msg, StreamObserver<route.Route> obs) { 
+        public Put(LinkedBlockingDeque<QPair> que, ConcurrentHashMap<Integer,Integer> map, route.Route msg, StreamObserver<route.Route> obs) { 
             this.que = que;
             this.map = map;
             this.msg = new QPair(obs, msg);
@@ -90,24 +80,27 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         public void run() {
             route.Route newMsg =  msg.getRoute();
             if (verify(newMsg)) {
-                sendAcknowledgement(msg.getObserver());
-                if (newMsg.getType().equals("HeartBeat"))  // TODO iterate heartbeat detector so that heartbeats arrived increases 
-                    map.put((int) newMsg.getOrigin(), new HeartBeatServer(new String(newMsg.getPayload().toByteArray()))); 
+                //sendAcknowledgement(msg.getObserver());
+                if (newMsg.getWorkType() == 5) // HEARTBEAT TYPE
+                    map.put((int) newMsg.getOrigin(), Integer.valueOf(new String(newMsg.getPayload().toByteArray()))); 
                 else 
                     que.offer(msg);   // destination needs to be determined later by Take thread
+            } else { // Sends non verified msg back to client
+                String ackStr = "Request has invalid response and has been rejected";
+                route.Route ack = constructMessage(0, "null",ackStr,-1, 0, 1); //NEED TO CHANGE TYPE MAYBE
+                msg.getObserver().onNext(ack);
             }
         }   
 
         // Message has valid type
         private boolean verify(route.Route request) {
-            String[] validTypes = {"HeartBeat","Work"};
-		    return Arrays.asList(validTypes).contains(request.getType());
+		    return (request.getWorkType() > 0 && request.getWorkType() < 7);
 	    }
 
         // sends and ack response back to client
         private void sendAcknowledgement(StreamObserver<route.Route> responseObserver) {
             String ackStr = "Request has been received!";
-            route.Route ack = constructMessage(0, "null",ackStr,"Acknowledgement", 0);
+            route.Route ack = constructMessage(0, "null",ackStr,7, 0, 1); //NEED TO CHANGE TYPE IF WE USE
             responseObserver.onNext(ack);
         }
     }
@@ -121,11 +114,11 @@ public class RouteLeaderServer extends RouteServiceImplBase {
         private boolean _verbose = false;
         private boolean _isRunning = true;
         private RouteServiceGrpc.RouteServiceStub commStub;
-        private ConcurrentHashMap<Integer,HeartBeatServer> map;
+        private ConcurrentHashMap<Integer,Integer> map;
 
         private LinkedBlockingDeque<QPair> que;
 
-        public Take(LinkedBlockingDeque<QPair> que, RouteServiceGrpc.RouteServiceStub commStub, ConcurrentHashMap<Integer,HeartBeatServer> map) {
+        public Take(LinkedBlockingDeque<QPair> que, RouteServiceGrpc.RouteServiceStub commStub, ConcurrentHashMap<Integer,Integer> map) {
             this.que = que;
             this.commStub = commStub;
             this.map = map;
@@ -133,24 +126,15 @@ public class RouteLeaderServer extends RouteServiceImplBase {
 
         @Override
         public void run() { 
-            // MIGHT NEED TO ADD ADDITIONAL FIELD FOR KNOWING WHAT WORK SERVER PERFORMED WORK IF WE WANT TO KEEP TRACK OF THAT
             while (_isRunning && !que.isEmpty()) { //keeps going until que is empty
-                // types of messages: Server Reply, Client Work, Unknown
 				try {
                     QPair qp = que.poll();
 					route.Route msg = qp.getRoute();
-                    if (msg.getType().equals("Reply")) { // send reply to client (this prob has to be done by Worker instead)
-                        qp.getObserver().onNext(msg); //might need to change message slightly
-                        qp.getObserver().onCompleted();         
-                    } else if (msg.getType().equals("Work")) { // send work to chosen work server
-                        // Maybe if hashmap of heartbeats has not been updated for a bit then sleep this thread for a few sec
-                        //could also use prio que and not take until size is 4
+                    if (msg.getWorkType() > 0 && msg.getWorkType() < 5) { // send work to chosen work server
                         String payloadStr = new String(msg.getPayload().toByteArray());
-                        route.Route newReq = constructMessage((int) msg.getId(), msg.getPath(),payloadStr, msg.getType(), findLeastBusyServer());
+                        route.Route newReq = constructMessage((int) msg.getId(), msg.getPath(),payloadStr, msg.getWorkType(), findLeastBusyServer(), (int) msg.getOrigin());
                         commStub.request(newReq, qp.getObserver());
-                    } else { //does it make sense that leader would pass it forward or should it just throw out?
-
-                    }
+                    } 
 				} catch (Exception e) {
                     System.err.println("Take thread error!\n" + e);
 				}
@@ -162,19 +146,18 @@ public class RouteLeaderServer extends RouteServiceImplBase {
 
         // Algo for determining best server for sending work based off of heartbeat map
         private Integer findLeastBusyServer() {
-            int minHB = -1, minHBServer = -1; //MIGHT NEED TO CHANGE DEPENDING ON INDIVIDUAL SERVER HB
-            for (Map.Entry<Integer,HeartBeatServer> entry : map.entrySet()) 
-                minHBServer = (entry.getValue().getHB() > minHB) ? entry.getKey() : minHBServer;
+            int minHB = -1, minHBServer = -1; 
+            for (Map.Entry<Integer,Integer> entry : map.entrySet()) //random order
+                minHBServer = (entry.getValue() > minHB) ? entry.getKey() : minHBServer;
             return minHBServer;
         }
         
     }
 
     //might need to make some of these static
-    protected final static int port = 1; // should come from conf file eventually
+    protected final static int id = 1; //server id (used in requests)
     protected LinkedBlockingDeque<QPair> que; // que of requests
-    protected ConcurrentHashMap<Integer,HeartBeatServer> networkStatus; //Key: ID of server, Value: Heartbeat status
-    protected int heartbeatsUpdated = 0; //needs to be 4 for leader to distribute a server (might use later)
+    protected ConcurrentHashMap<Integer,Integer> networkStatus; //Key: ID of server, Value: Heartbeat status
     private Server svr; // actual server
     protected RouteServiceGrpc.RouteServiceStub next; //stub to request to next server in cycle
     private HBMonitor hb;
@@ -199,7 +182,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     private void setup() {
         que = new LinkedBlockingDeque<>();
         networkStatus = new ConcurrentHashMap<>();
-        ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteLeaderServer.port).usePlaintext().build();
+        ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteServer.getInstance().getServerDestination()).usePlaintext().build();
 		next = RouteServiceGrpc.newStub(ch);
         hb = new HBMonitor(next);
     }
@@ -212,26 +195,23 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     @Override
 	public void request(route.Route request, StreamObserver<route.Route> responseObserver) {
         (new Put(que, networkStatus, request, responseObserver)).start();
-        // maybe add some sleep here????
         (new Take(que, next, networkStatus)).start();
     }
 
-    private static final route.Route constructMessage(int mID, String path, String payload, String type, int destination) {
+    private static final route.Route constructMessage(int mID, String path, String payload, int type, int destination ,int origin) {
 		route.Route.Builder bld = route.Route.newBuilder();
 		bld.setId(mID);
-		bld.setOrigin(RouteLeaderServer.port); // MIGHT NEED TO CHANGE SO I DONT OVERWRITE
+		bld.setOrigin(origin); 
 		bld.setPath(path);
-        bld.setType(type);
+        bld.setWorkType(type);
         bld.setDestination(destination);
 		bld.setPayload(ByteString.copyFrom(payload.getBytes()));
 		return bld.build();
 	}
 
     private void start() throws Exception {
-        // TODO INTIALIZE VARS AND ADD LOOP FOR CHECKING HBs
 		svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(new RouteLeaderServer())
 				.build();
-
 		System.out.println("-- starting Leader server");
 		svr.start();
         hb.start(); // START OF HEARTBEAT REQUEST CYCLE

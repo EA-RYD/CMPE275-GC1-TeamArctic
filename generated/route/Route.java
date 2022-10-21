@@ -21,7 +21,6 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Route() {
-    type_ = "";
     path_ = "";
     payload_ = com.google.protobuf.ByteString.EMPTY;
   }
@@ -61,26 +60,25 @@ private static final long serialVersionUID = 0L;
             id_ = input.readInt64();
             break;
           }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            type_ = s;
-            break;
-          }
-          case 24: {
+          case 16: {
 
             origin_ = input.readInt64();
             break;
           }
-          case 32: {
+          case 24: {
 
             destination_ = input.readInt64();
             break;
           }
-          case 42: {
+          case 34: {
             java.lang.String s = input.readStringRequireUtf8();
 
             path_ = s;
+            break;
+          }
+          case 40: {
+
+            workType_ = input.readInt32();
             break;
           }
           case 50: {
@@ -137,48 +135,10 @@ private static final long serialVersionUID = 0L;
     return id_;
   }
 
-  public static final int TYPE_FIELD_NUMBER = 2;
-  private volatile java.lang.Object type_;
-  /**
-   * <code>string type = 2;</code>
-   * @return The type.
-   */
-  @java.lang.Override
-  public java.lang.String getType() {
-    java.lang.Object ref = type_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      type_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string type = 2;</code>
-   * @return The bytes for type.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getTypeBytes() {
-    java.lang.Object ref = type_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      type_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int ORIGIN_FIELD_NUMBER = 3;
+  public static final int ORIGIN_FIELD_NUMBER = 2;
   private long origin_;
   /**
-   * <code>int64 origin = 3;</code>
+   * <code>int64 origin = 2;</code>
    * @return The origin.
    */
   @java.lang.Override
@@ -186,10 +146,10 @@ private static final long serialVersionUID = 0L;
     return origin_;
   }
 
-  public static final int DESTINATION_FIELD_NUMBER = 4;
+  public static final int DESTINATION_FIELD_NUMBER = 3;
   private long destination_;
   /**
-   * <code>int64 destination = 4;</code>
+   * <code>int64 destination = 3;</code>
    * @return The destination.
    */
   @java.lang.Override
@@ -197,10 +157,10 @@ private static final long serialVersionUID = 0L;
     return destination_;
   }
 
-  public static final int PATH_FIELD_NUMBER = 5;
+  public static final int PATH_FIELD_NUMBER = 4;
   private volatile java.lang.Object path_;
   /**
-   * <code>string path = 5;</code>
+   * <code>string path = 4;</code>
    * @return The path.
    */
   @java.lang.Override
@@ -217,7 +177,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string path = 5;</code>
+   * <code>string path = 4;</code>
    * @return The bytes for path.
    */
   @java.lang.Override
@@ -233,6 +193,17 @@ private static final long serialVersionUID = 0L;
     } else {
       return (com.google.protobuf.ByteString) ref;
     }
+  }
+
+  public static final int WORKTYPE_FIELD_NUMBER = 5;
+  private int workType_;
+  /**
+   * <code>int32 workType = 5;</code>
+   * @return The workType.
+   */
+  @java.lang.Override
+  public int getWorkType() {
+    return workType_;
   }
 
   public static final int PAYLOAD_FIELD_NUMBER = 6;
@@ -267,17 +238,17 @@ private static final long serialVersionUID = 0L;
     if (id_ != 0L) {
       output.writeInt64(1, id_);
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(type_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, type_);
-    }
     if (origin_ != 0L) {
-      output.writeInt64(3, origin_);
+      output.writeInt64(2, origin_);
     }
     if (destination_ != 0L) {
-      output.writeInt64(4, destination_);
+      output.writeInt64(3, destination_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(path_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, path_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, path_);
+    }
+    if (workType_ != 0) {
+      output.writeInt32(5, workType_);
     }
     if (!payload_.isEmpty()) {
       output.writeBytes(6, payload_);
@@ -295,19 +266,20 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(1, id_);
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(type_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, type_);
-    }
     if (origin_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(3, origin_);
+        .computeInt64Size(2, origin_);
     }
     if (destination_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(4, destination_);
+        .computeInt64Size(3, destination_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(path_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, path_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, path_);
+    }
+    if (workType_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(5, workType_);
     }
     if (!payload_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
@@ -330,14 +302,14 @@ private static final long serialVersionUID = 0L;
 
     if (getId()
         != other.getId()) return false;
-    if (!getType()
-        .equals(other.getType())) return false;
     if (getOrigin()
         != other.getOrigin()) return false;
     if (getDestination()
         != other.getDestination()) return false;
     if (!getPath()
         .equals(other.getPath())) return false;
+    if (getWorkType()
+        != other.getWorkType()) return false;
     if (!getPayload()
         .equals(other.getPayload())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
@@ -354,8 +326,6 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + ID_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
         getId());
-    hash = (37 * hash) + TYPE_FIELD_NUMBER;
-    hash = (53 * hash) + getType().hashCode();
     hash = (37 * hash) + ORIGIN_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
         getOrigin());
@@ -364,6 +334,8 @@ private static final long serialVersionUID = 0L;
         getDestination());
     hash = (37 * hash) + PATH_FIELD_NUMBER;
     hash = (53 * hash) + getPath().hashCode();
+    hash = (37 * hash) + WORKTYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getWorkType();
     hash = (37 * hash) + PAYLOAD_FIELD_NUMBER;
     hash = (53 * hash) + getPayload().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
@@ -506,13 +478,13 @@ private static final long serialVersionUID = 0L;
       super.clear();
       id_ = 0L;
 
-      type_ = "";
-
       origin_ = 0L;
 
       destination_ = 0L;
 
       path_ = "";
+
+      workType_ = 0;
 
       payload_ = com.google.protobuf.ByteString.EMPTY;
 
@@ -543,10 +515,10 @@ private static final long serialVersionUID = 0L;
     public route.Route buildPartial() {
       route.Route result = new route.Route(this);
       result.id_ = id_;
-      result.type_ = type_;
       result.origin_ = origin_;
       result.destination_ = destination_;
       result.path_ = path_;
+      result.workType_ = workType_;
       result.payload_ = payload_;
       onBuilt();
       return result;
@@ -599,10 +571,6 @@ private static final long serialVersionUID = 0L;
       if (other.getId() != 0L) {
         setId(other.getId());
       }
-      if (!other.getType().isEmpty()) {
-        type_ = other.type_;
-        onChanged();
-      }
       if (other.getOrigin() != 0L) {
         setOrigin(other.getOrigin());
       }
@@ -612,6 +580,9 @@ private static final long serialVersionUID = 0L;
       if (!other.getPath().isEmpty()) {
         path_ = other.path_;
         onChanged();
+      }
+      if (other.getWorkType() != 0) {
+        setWorkType(other.getWorkType());
       }
       if (other.getPayload() != com.google.protobuf.ByteString.EMPTY) {
         setPayload(other.getPayload());
@@ -688,85 +659,9 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private java.lang.Object type_ = "";
-    /**
-     * <code>string type = 2;</code>
-     * @return The type.
-     */
-    public java.lang.String getType() {
-      java.lang.Object ref = type_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        type_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string type = 2;</code>
-     * @return The bytes for type.
-     */
-    public com.google.protobuf.ByteString
-        getTypeBytes() {
-      java.lang.Object ref = type_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        type_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string type = 2;</code>
-     * @param value The type to set.
-     * @return This builder for chaining.
-     */
-    public Builder setType(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      type_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string type = 2;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearType() {
-      
-      type_ = getDefaultInstance().getType();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string type = 2;</code>
-     * @param value The bytes for type to set.
-     * @return This builder for chaining.
-     */
-    public Builder setTypeBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      type_ = value;
-      onChanged();
-      return this;
-    }
-
     private long origin_ ;
     /**
-     * <code>int64 origin = 3;</code>
+     * <code>int64 origin = 2;</code>
      * @return The origin.
      */
     @java.lang.Override
@@ -774,7 +669,7 @@ private static final long serialVersionUID = 0L;
       return origin_;
     }
     /**
-     * <code>int64 origin = 3;</code>
+     * <code>int64 origin = 2;</code>
      * @param value The origin to set.
      * @return This builder for chaining.
      */
@@ -785,7 +680,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>int64 origin = 3;</code>
+     * <code>int64 origin = 2;</code>
      * @return This builder for chaining.
      */
     public Builder clearOrigin() {
@@ -797,7 +692,7 @@ private static final long serialVersionUID = 0L;
 
     private long destination_ ;
     /**
-     * <code>int64 destination = 4;</code>
+     * <code>int64 destination = 3;</code>
      * @return The destination.
      */
     @java.lang.Override
@@ -805,7 +700,7 @@ private static final long serialVersionUID = 0L;
       return destination_;
     }
     /**
-     * <code>int64 destination = 4;</code>
+     * <code>int64 destination = 3;</code>
      * @param value The destination to set.
      * @return This builder for chaining.
      */
@@ -816,7 +711,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>int64 destination = 4;</code>
+     * <code>int64 destination = 3;</code>
      * @return This builder for chaining.
      */
     public Builder clearDestination() {
@@ -828,7 +723,7 @@ private static final long serialVersionUID = 0L;
 
     private java.lang.Object path_ = "";
     /**
-     * <code>string path = 5;</code>
+     * <code>string path = 4;</code>
      * @return The path.
      */
     public java.lang.String getPath() {
@@ -844,7 +739,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string path = 5;</code>
+     * <code>string path = 4;</code>
      * @return The bytes for path.
      */
     public com.google.protobuf.ByteString
@@ -861,7 +756,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string path = 5;</code>
+     * <code>string path = 4;</code>
      * @param value The path to set.
      * @return This builder for chaining.
      */
@@ -876,7 +771,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string path = 5;</code>
+     * <code>string path = 4;</code>
      * @return This builder for chaining.
      */
     public Builder clearPath() {
@@ -886,7 +781,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string path = 5;</code>
+     * <code>string path = 4;</code>
      * @param value The bytes for path to set.
      * @return This builder for chaining.
      */
@@ -898,6 +793,37 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       path_ = value;
+      onChanged();
+      return this;
+    }
+
+    private int workType_ ;
+    /**
+     * <code>int32 workType = 5;</code>
+     * @return The workType.
+     */
+    @java.lang.Override
+    public int getWorkType() {
+      return workType_;
+    }
+    /**
+     * <code>int32 workType = 5;</code>
+     * @param value The workType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setWorkType(int value) {
+      
+      workType_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>int32 workType = 5;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearWorkType() {
+      
+      workType_ = 0;
       onChanged();
       return this;
     }

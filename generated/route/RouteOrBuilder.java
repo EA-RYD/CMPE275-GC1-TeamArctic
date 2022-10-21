@@ -18,40 +18,34 @@ public interface RouteOrBuilder extends
   long getId();
 
   /**
-   * <code>string type = 2;</code>
-   * @return The type.
-   */
-  java.lang.String getType();
-  /**
-   * <code>string type = 2;</code>
-   * @return The bytes for type.
-   */
-  com.google.protobuf.ByteString
-      getTypeBytes();
-
-  /**
-   * <code>int64 origin = 3;</code>
+   * <code>int64 origin = 2;</code>
    * @return The origin.
    */
   long getOrigin();
 
   /**
-   * <code>int64 destination = 4;</code>
+   * <code>int64 destination = 3;</code>
    * @return The destination.
    */
   long getDestination();
 
   /**
-   * <code>string path = 5;</code>
+   * <code>string path = 4;</code>
    * @return The path.
    */
   java.lang.String getPath();
   /**
-   * <code>string path = 5;</code>
+   * <code>string path = 4;</code>
    * @return The bytes for path.
    */
   com.google.protobuf.ByteString
       getPathBytes();
+
+  /**
+   * <code>int32 workType = 5;</code>
+   * @return The workType.
+   */
+  int getWorkType();
 
   /**
    * <pre>
