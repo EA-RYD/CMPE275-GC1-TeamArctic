@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import com.google.protobuf.ByteString;
 
 public class Client {
-	private static long clientID = 501;		// need to find out what this is for
+	private static long clientID = 501;
 	private Properties setup;
 	private Socket socket;
 	private InputStreamReader in;
@@ -72,7 +72,9 @@ public class Client {
 			// TODO wait for replies from server and ends once it has received all replies
 			try {
 				String response = reader.readLine();
-				System.out.println(response);
+				if (response != null) {
+					System.out.println(response);
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

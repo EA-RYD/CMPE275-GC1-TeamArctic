@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
@@ -14,6 +15,8 @@ import com.google.protobuf.util.JsonFormat;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
 import route.Route;
 import route.RouteServiceGrpc;
 
@@ -26,53 +29,80 @@ public class ConnectionHandler extends Thread {
 	public ConnectionHandler(Socket connection) {
 		this.connection = connection;
 	}
-	
+
 	@Override
 	public void run() {
 		try {
 			in = connection.getInputStream();
 			out = new PrintWriter(connection.getOutputStream(), true);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			
+
 			if (in == null || out == null)
 				throw new RuntimeException("Unable to get in/out streams");
-			
-			ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", 2345).usePlaintext().build();
-			RouteServiceGrpc.RouteServiceBlockingStub stub = RouteServiceGrpc.newBlockingStub(ch);
-			
+
+			ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", 2345).usePlaintext().build();		// leader port
+			RouteServiceGrpc.RouteServiceStub stub = RouteServiceGrpc.newStub(ch);
+			final CountDownLatch finishLatch = new CountDownLatch(1);
+			StreamObserver<route.Route> responseObserver = new StreamObserver<route.Route>() {
+				@Override
+				public void onNext(route.Route msg) {
+					var payload = new String(msg.getPayload().toByteArray());
+					long serverId = msg.getOrigin();
+					ConnectionHandler.this.notify("Received response from server " + serverId + ": " + payload);
+				}
+
+				@Override
+				public void onError(Throwable t) {
+					Status status = Status.fromThrowable(t);
+					finishLatch.countDown();
+				}
+
+				@Override
+				public void onCompleted() {
+					finishLatch.countDown();
+				}
+			};
+		
 			while (true) {
 				String message;
 				if ((message = reader.readLine()) != null) {
-				    // out.println(message);
+					// out.println(message);
 					System.out.println("Received: " + message);
-				    System.out.flush();
-				    
-				    // convert message to JSONObject and pass it back to ServerHook?
-				    JSONObject json = new JSONObject(message);
-				    Route.Builder bld = Route.newBuilder();
-				    
-				    // let Client know ServerHook received message
-				    out.write("ServerHook received message: " + json.getLong("id"));
-				    out.write('\n');
+					System.out.flush();
+
+					// convert message to JSONObject and pass it back to ServerHook?
+					JSONObject json = new JSONObject(message);
+					Route.Builder bld = Route.newBuilder();
+
+					// let Client know ServerHook received message
+					out.write("ServerHook received message: " + json.getLong("id"));
+					out.write('\n');
 					out.flush();
-					
-				    // JsonFormat.parser().merge(message, bld);
-		
-				    // not ideal, need to figure out how to encode payload as byte in JSONObject and use JSONFormat.parser()
+
+					// JsonFormat.parser().merge(message, bld);
+
+					// not ideal, need to figure out how to encode payload as byte in JSONObject and
+					// use JSONFormat.parser()
 					bld.setId(json.getLong("id"));
 					bld.setOrigin(json.getLong("origin"));
 					bld.setPath(json.getString("path"));
 					bld.setWorkType(json.getInt("workType"));
 					byte[] payload = json.getString("payload").getBytes();
 					bld.setPayload(ByteString.copyFrom(payload));
-					
-				    // send to grpc server
-					Route r = stub.request(bld.build());
+
+					// send to grpc server
+					stub.request(bld.build(), responseObserver);
 				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void notify(String reply) {
+		out.write("Response from GRPC server: " + reply);
+		out.write('\n');
+		out.flush();
 	}
 }
