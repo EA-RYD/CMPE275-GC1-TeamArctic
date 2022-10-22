@@ -140,9 +140,10 @@ public class WorkerServer {
 			workers.add(worker);
 		}
 
-		for (Worker w : workers) {
+		//Comment this out since this loop is already residing in the workerServer's start method
+		/*for (Worker w : workers) {
 			w.start();
-		}
+		}*/
 	}
 
 	private void initializeHBManager() {

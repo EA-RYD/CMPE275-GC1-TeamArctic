@@ -96,7 +96,7 @@ public class Worker extends Thread {
             w.responseObserver.onNext(builder.build());
             w.responseObserver.onCompleted();
             try {
-                Thread.sleep(w.getSleepTime() * 1000);
+                Thread.sleep(w.getSleepTime());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
