@@ -20,6 +20,7 @@ public class WorkerServer {
     protected static int serverID;
     protected static int leaderID;
     protected RouteServiceGrpc.RouteServiceStub comm;
+    private Worker hbManager;
 
     /**
 	* Configuration of the server's identity, port, and role
@@ -51,17 +52,12 @@ public class WorkerServer {
 	}
     
     public static void main(String[] args) throws Exception {
-        // TODO check args!
 
         String path = args[0];
         try {
             Properties conf = WorkerServer.getConfiguration(new File(path));
             RouteServer.configure(conf);
             final WorkerServer ws = new WorkerServer();
-            // create 4 worker threads for each worker server
-            for (int i = 0; i < 5; i++) {
-                ws.workers.add(new Worker(ws));
-            }
             ws.start();
             ws.blockUntilShutdown();
         } catch (IOException e) {
@@ -72,6 +68,8 @@ public class WorkerServer {
     }
 
     private void start() throws Exception {
+        initializeWorkers();
+        initializeHBManager();
 		svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(new RouteServerImpl())
 				.build();
 
@@ -111,10 +109,11 @@ public class WorkerServer {
             if (request.getWorkType() == 5) {
                 System.out.println("Received HB request from " + request.getOrigin());
                 var HBresponse = processHB(request);
+                // send hb back to leader
                 comm.request(HBresponse, responseObserver);
             } else{
-                // TODO: assign the work to a worker -> call the enqueue method
-
+                var w = new Work(responseObserver, request);
+                enqueueAsWork(w);
             }
         } else {
             // This is not the destination, forward the request to the next server
@@ -127,9 +126,65 @@ public class WorkerServer {
         hb.setOrigin(serverID);
         hb.setDestination(leaderID);
         hb.setWorkType(6);
-        // TODO: get the playload for the HB, add HB work to the HB queue?
+        // TODO: get the playload for the HB 
         String payload = "hb";
         hb.setPayload(ByteString.copyFromUtf8(payload));
         return hb.build();
     }
+
+    private void initializeWorkers() {
+		//Fill the list with 4 workers
+		for (int i = 0; i < 4; i++) {
+			Worker worker = new Worker(this, Worker.WorkerType.Worker);
+
+			workers.add(worker);
+		}
+
+		for (Worker w : workers) {
+			w.start();
+		}
+	}
+
+	private void initializeHBManager() {
+		hbManager = new Worker(this, Worker.WorkerType.HBManager);
+
+		hbManager.setWorkers(workers);
+
+		hbManager.start();
+	}
+
+	//Decide which worker will handle the request based on heartbeats
+	public void enqueueAsWork(Work w) {
+		int lowestSleepTime = Integer.MAX_VALUE;
+
+		int index = 0;
+		int workerIndexLowestSleep = index;
+		//Go through each worker's heartbeats
+		for (Work hb : hbManager.getWorks()) {
+			//Convert byte array to string representation
+			String hbStatus = hb.payload.toString();
+
+			String[] hbStatusArr = hbStatus.split(" ");
+
+			int currentWorkerId = Integer.parseInt(hbStatusArr[0]);
+			int queueSize = Integer.parseInt(hbStatusArr[1]);
+			int cumulativeSleepTime = Integer.parseInt(hbStatusArr[2]);
+
+			//If the worker's queue size is at max, then skip to the next worker heartbeat
+			if (queueSize >= Worker.maxWorkSize) {
+				index++;
+				continue;
+			}
+			else {
+				if (cumulativeSleepTime < lowestSleepTime) {
+					lowestSleepTime = cumulativeSleepTime;
+					workerIndexLowestSleep = index;
+				}
+			}
+			index++;
+		}
+
+		//Add the work to the worker with the least sleep time
+		workers.get(workerIndexLowestSleep).addWork(w);
+	}
 }

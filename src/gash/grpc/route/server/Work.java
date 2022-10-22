@@ -20,7 +20,7 @@ public class Work {
     private int sleepTime;
 
     // a placeholder
-    public byte payload;
+    public byte[] payload;
     public enum WorkType {
         POST, GET, PUT, DELETE, HeartBeat, Unknown
     }
@@ -43,6 +43,14 @@ public class Work {
         this.fromId = ro.getOrigin();
         this.toId = ro.getDestination();
         this.isA = routeMap.containsKey(ro.getWorkType()) ? routeMap.get(ro.getWorkType()) : WorkType.Unknown;
+    }
+
+    //Constructor for heartbeat work
+    //For heartbeat at the worker thread level, heartbeat at server level is handled at other constructor
+    public Work(byte[] payload) {
+        this.workId = sIdGen.incrementAndGet();
+        this.isA = WorkType.HeartBeat;
+        this.payload = payload;
     }
 
     // get the sleep time for different work types
