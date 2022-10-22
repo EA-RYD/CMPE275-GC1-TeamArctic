@@ -8,10 +8,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONObject;
 
-import com.google.protobuf.ByteString;
 
 public class Client {
 	private static long clientID = 501;
@@ -20,6 +22,8 @@ public class Client {
 	private InputStreamReader in;
 	private OutputStreamWriter out;
 	private BufferedReader reader;
+	
+	protected static Logger logger = Logger.getLogger("client");		// maybe create a different logger for each client
 	
 	public Client(Properties setup) {
 		this.setup = setup;
@@ -40,6 +44,13 @@ public class Client {
 			in = new InputStreamReader(socket.getInputStream());
 			out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
 			reader = new BufferedReader(in);
+			
+			// configuring logger
+			logger.setUseParentHandlers(false);
+	        FileHandler fh = new FileHandler("logs/client.log");  
+	        logger.addHandler(fh);
+	        SimpleFormatter formatter = new SimpleFormatter();  
+	        fh.setFormatter(formatter);  
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -55,32 +66,36 @@ public class Client {
 			json.put("origin", Client.clientID);
 			json.put("destination", "somewhere");
 			json.put("path", "/to/somewhere");
-			json.put("workType" , 1);
+			json.put("workType" , (i % 4) + 1);
 			json.put("payload", "Hello");	// how to store it so that it is compatible with .proto type bytes?
-			
+			logger.info("Sent: " + json.toString());
 			try {
 				out.write(json.toString());
 				out.write('\n');
 				out.flush();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
-		while (true) {
-			// TODO wait for replies from server and ends once it has received all replies
+		// wait for replies from server
+		String response;
+		try {
+			while ((response = reader.readLine()) != null) {
+				logger.info(response);
+				System.out.println(response);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
 			try {
-				String response = reader.readLine();
-				if (response != null) {
-					System.out.println(response);
-				}
+				socket.close();
+				in.close();
+				out.close();
+				reader.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			// add a condition to break while loop
 		}
 	}
 	
