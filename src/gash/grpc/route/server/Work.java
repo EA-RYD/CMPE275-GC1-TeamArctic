@@ -8,34 +8,35 @@ import io.grpc.stub.StreamObserver;
 import route.Route;
 
 public class Work {
-    private StreamObserver<route.Route> responseObserver;
-    private Route request;
+    protected StreamObserver<route.Route> responseObserver;
+    private route.Route request;
     private static AtomicInteger sIdGen;
 
     public final int workId;
     public long fromId;
     public long toId;
     public WorkType isA;
+    //Simulating computational time
+    private int sleepTime;
 
     // a placeholder
     public byte payload;
     public enum WorkType {
-        POST, GET, PUT, DELETE, Response, HeartBeat, Unknown
+        POST, GET, PUT, DELETE, HeartBeat, Unknown
     }
     private Map<Integer, WorkType> routeMap = new HashMap<>() {{
         put(1, WorkType.POST);
         put(2, WorkType.GET);
         put(3, WorkType.PUT);
         put(4, WorkType.DELETE);
-        put(5, WorkType.Response);
-        put(6, WorkType.HeartBeat);
+        put(5, WorkType.HeartBeat);
     }};
 
     static {
         sIdGen = new AtomicInteger();
     }
 
-    public Work(StreamObserver<route.Route> rs, Route ro) {
+    public Work(StreamObserver<route.Route> rs, route.Route ro) {
         this.responseObserver = rs;
         this.request = ro;
         this.workId = sIdGen.incrementAndGet();
@@ -44,7 +45,27 @@ public class Work {
         this.isA = routeMap.containsKey(ro.getWorkType()) ? routeMap.get(ro.getWorkType()) : WorkType.Unknown;
     }
 
-    public boolean needProcess() {
-        return this.isA != WorkType.Response && this.isA != WorkType.HeartBeat && this.isA != WorkType.Unknown;
+    // get the sleep time for different work types
+    public int getSleepTime() {
+        if (this.isA == null) {
+            throw new IllegalArgumentException("WorkType is not set");
+        }
+        switch (this.isA) {
+            case POST:
+                this.sleepTime = 1000;
+                break;
+            case GET:
+                this.sleepTime = 500;
+                break;
+            case PUT:
+                this.sleepTime = 1000;
+                break;
+            case DELETE:
+                this.sleepTime = 500;
+                break;
+            default:
+                break;
+        }
+        return this.sleepTime;
     }
 }

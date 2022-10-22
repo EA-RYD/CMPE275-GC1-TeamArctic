@@ -167,11 +167,8 @@ public class RouteServerImpl extends RouteServiceImplBase {
 			//remove in place of non-blocking?
 			ack.setId(RouteServer.getInstance().getNextMessageID());
 			ack.setOrigin(RouteServer.getInstance().getServerID());
-			if (w.needProcess()) {
-				ack.setWorkType(5);
-			} else {
-				ack.setWorkType(request.getWorkType());
-			}
+
+			ack.setWorkType(request.getWorkType());
 			ack.setDestination(request.getOrigin());
 			ack.setPath(request.getPath());
 
