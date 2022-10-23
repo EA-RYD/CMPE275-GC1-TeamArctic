@@ -3,10 +3,13 @@ package route;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
+ * <pre>
+ *Can define APIs here
+ * </pre>
  */
-/*@javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.49.0)",
-    comments = "Source: route.proto")*/
+@javax.annotation.Generated(
+    value = "by gRPC proto compiler (version 1.44.1)",
+    comments = "Source: route.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class RouteServiceGrpc {
 
@@ -22,7 +25,7 @@ public final class RouteServiceGrpc {
       fullMethodName = SERVICE_NAME + '/' + "request",
       requestType = route.Route.class,
       responseType = route.Route.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
   public static io.grpc.MethodDescriptor<route.Route,
       route.Route> getRequestMethod() {
     io.grpc.MethodDescriptor<route.Route, route.Route> getRequestMethod;
@@ -31,7 +34,7 @@ public final class RouteServiceGrpc {
         if ((getRequestMethod = RouteServiceGrpc.getRequestMethod) == null) {
           RouteServiceGrpc.getRequestMethod = getRequestMethod =
               io.grpc.MethodDescriptor.<route.Route, route.Route>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "request"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
@@ -91,6 +94,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static abstract class RouteServiceImplBase implements io.grpc.BindableService {
 
@@ -105,7 +111,7 @@ public final class RouteServiceGrpc {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
             getRequestMethod(),
-            io.grpc.stub.ServerCalls.asyncUnaryCall(
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
               new MethodHandlers<
                 route.Route,
                 route.Route>(
@@ -115,6 +121,9 @@ public final class RouteServiceGrpc {
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceStub extends io.grpc.stub.AbstractAsyncStub<RouteServiceStub> {
     private RouteServiceStub(
@@ -132,12 +141,15 @@ public final class RouteServiceGrpc {
      */
     public void request(route.Route request,
         io.grpc.stub.StreamObserver<route.Route> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
           getChannel().newCall(getRequestMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceBlockingStub extends io.grpc.stub.AbstractBlockingStub<RouteServiceBlockingStub> {
     private RouteServiceBlockingStub(
@@ -153,13 +165,17 @@ public final class RouteServiceGrpc {
 
     /**
      */
-    public route.Route request(route.Route request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+    public java.util.Iterator<route.Route> request(
+        route.Route request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
           getChannel(), getRequestMethod(), getCallOptions(), request);
     }
   }
 
   /**
+   * <pre>
+   *Can define APIs here
+   * </pre>
    */
   public static final class RouteServiceFutureStub extends io.grpc.stub.AbstractFutureStub<RouteServiceFutureStub> {
     private RouteServiceFutureStub(
@@ -171,14 +187,6 @@ public final class RouteServiceGrpc {
     protected RouteServiceFutureStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new RouteServiceFutureStub(channel, callOptions);
-    }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<route.Route> request(
-        route.Route request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getRequestMethod(), getCallOptions()), request);
     }
   }
 

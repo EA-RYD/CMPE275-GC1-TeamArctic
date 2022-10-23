@@ -190,6 +190,15 @@ public class RouteServerImpl extends RouteServiceImplBase {
 		//route.Route rtn = builder.build();
 
 		responseObserver.onNext(rtn);
+		route.Route.Builder tmp = route.Route.newBuilder();
+		tmp.setId(RouteServer.getInstance().getNextMessageID());
+		tmp.setOrigin(RouteServer.getInstance().getServerID());
+		tmp.setDestination(request.getOrigin());
+		tmp.setPath(request.getPath());
+		byte[] ak = "Second Response".getBytes();
+		tmp.setPayload(ByteString.copyFrom(ak));
+		route.Route r = tmp.build();
+		responseObserver.onNext(r);
 		responseObserver.onCompleted();
 
 	}

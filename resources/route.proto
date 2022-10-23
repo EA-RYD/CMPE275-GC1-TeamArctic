@@ -7,7 +7,7 @@ package route;
 
 //Can define APIs here
 service RouteService {
-   rpc request(Route) returns (Route) {}
+   rpc request(Route) returns (stream Route) {}
 }
 
 // basic message correspondence between two points. Additional metadata 
