@@ -22,7 +22,7 @@ public class WorkerServer extends RouteServiceImplBase {
     private List<Worker> workers = new ArrayList<>();
     protected static int serverID;
     protected static int leaderID;
-    protected RouteServiceGrpc.RouteServiceStub comm;
+    protected static RouteServiceGrpc.RouteServiceStub comm;
     private Worker hbManager;
 
     /**
@@ -74,7 +74,9 @@ public class WorkerServer extends RouteServiceImplBase {
 
     private void setup() {
         ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteServer.getInstance().getServerDestination()).usePlaintext().build();
-		comm = RouteServiceGrpc.newStub(ch);
+		WorkerServer.comm = comm == null ? RouteServiceGrpc.newStub(ch) : comm;
+		System.out.println("Worker server " + serverID + " connected to leader " + leaderID);
+		System.out.println("comm set up successfully? " + (WorkerServer.comm != null));
     }
 
     private void start() throws Exception {
@@ -113,6 +115,11 @@ public class WorkerServer extends RouteServiceImplBase {
 	 * can send acknowledgement of request was accepted and another of the results of the request
 	 */
 	public void request(route.Route request, StreamObserver<route.Route> responseObserver) {
+		// System.out.println("------ Testing received request from client");
+		// System.out.println("------ Request destination " + request.getDestination());
+		// System.out.println("------ Request type " + request.getWorkType());
+		// System.out.println("------ Request origin " + request.getOrigin());
+		// System.out.println("------ current server " + serverID);
         // check if current server is the destination
         if (request.getDestination() == serverID) {
             // deal with the HB request
@@ -121,7 +128,6 @@ public class WorkerServer extends RouteServiceImplBase {
                 var HBresponse = processHB(request);
                 
                 // send hb back to leader
-                //comm.request(HBresponse, responseObserver);
                 responseObserver.onNext(HBresponse);
                 responseObserver.onCompleted();
             } else{
@@ -130,7 +136,8 @@ public class WorkerServer extends RouteServiceImplBase {
             }
         } else {
             // This is not the destination, forward the request to the next server
-            comm.request(request, responseObserver);
+			System.out.println("-- Forwarding request to next server: " + request.getDestination() + "\n\n");
+			WorkerServer.comm.request(request, responseObserver);
         }
 	}
 
@@ -140,7 +147,7 @@ public class WorkerServer extends RouteServiceImplBase {
         hb.setDestination(leaderID);
         hb.setWorkType(5);
         // TODO: get the playload for the HB 
-        String payload = "hb";
+        String payload = "hb for " + serverID + " is";
         hb.setPayload(ByteString.copyFromUtf8(payload));
         return hb.build();
     }
