@@ -9,6 +9,8 @@ import java.util.Properties;
 
 import com.google.protobuf.ByteString;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -58,7 +60,9 @@ public class WorkerServer extends RouteServiceImplBase {
         try {
             Properties conf = WorkerServer.getConfiguration(new File(path));
             RouteServer.configure(conf);
+            
             final WorkerServer ws = new WorkerServer();
+            ws.setup();
             ws.start();
             ws.blockUntilShutdown();
         } catch (IOException e) {
@@ -66,6 +70,11 @@ public class WorkerServer extends RouteServiceImplBase {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private void setup() {
+        ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteServer.getInstance().getServerDestination()).usePlaintext().build();
+		comm = RouteServiceGrpc.newStub(ch);
     }
 
     private void start() throws Exception {
@@ -110,8 +119,11 @@ public class WorkerServer extends RouteServiceImplBase {
             if (request.getWorkType() == 5) {
                 System.out.println("Received HB request from " + request.getOrigin());
                 var HBresponse = processHB(request);
+                
                 // send hb back to leader
-                comm.request(HBresponse, responseObserver);
+                //comm.request(HBresponse, responseObserver);
+                responseObserver.onNext(HBresponse);
+                responseObserver.onCompleted();
             } else{
                 var w = new Work(responseObserver, request);
                 enqueueAsWork(w);
