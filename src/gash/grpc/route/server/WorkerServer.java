@@ -138,7 +138,7 @@ public class WorkerServer extends RouteServiceImplBase {
         route.Route.Builder hb = route.Route.newBuilder();
         hb.setOrigin(serverID);
         hb.setDestination(leaderID);
-        hb.setWorkType(6);
+        hb.setWorkType(5);
         // TODO: get the playload for the HB 
         String payload = "hb";
         hb.setPayload(ByteString.copyFromUtf8(payload));

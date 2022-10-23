@@ -59,7 +59,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
                     System.out.println("Sending out Heartbeat requests...");
                     for (int i = 2; i < 6; i++) {
                         final CountDownLatch finishLatch = new CountDownLatch(1);
-                        route.Route msg = constructMessage(hbId++, "null", "Send HB to Leader", 6, i, 1);
+                        route.Route msg = constructMessage(hbId++, "null", "Send HB to Leader", 5, i, 1);
                         comm.request(msg, new StreamObserver<route.Route>() {
 
                             @Override
