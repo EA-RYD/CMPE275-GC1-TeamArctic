@@ -18,7 +18,7 @@ PROTOC_HOME=/usr/local/Cellar/protobuf/21.5
 
 # intel processors only (not apple m1)
 # change to own path
-java_codegen=/Users/philliphnguyen/Downloads/protoc-gen-grpc-java-1.49.0-osx-aarch_64.exe
+java_codegen=/Users/$(whoami)/Downloads/protoc-gen-grpc-java-1.49.0-osx-aarch_64.exe
 
 if [ -d ${generated_base} ]; then
   echo -e "\n* removing contents of ${generated_base}"

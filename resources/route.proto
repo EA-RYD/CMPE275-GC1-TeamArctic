@@ -22,4 +22,3 @@ message Route {
   int32 workType = 5;
   bytes payload = 6; //Generalized
 }
-
