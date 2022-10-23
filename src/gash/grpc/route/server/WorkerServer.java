@@ -23,7 +23,7 @@ public class WorkerServer extends RouteServiceImplBase {
     protected static int serverID;
     protected static int leaderID;
     protected static RouteServiceGrpc.RouteServiceStub comm;
-    private Worker hbManager;
+    private static Worker hbManager;
 
     /**
 	* Configuration of the server's identity, port, and role
@@ -147,7 +147,7 @@ public class WorkerServer extends RouteServiceImplBase {
         hb.setDestination(leaderID);
         hb.setWorkType(5);
         // TODO: get the playload for the HB 
-        String payload = "hb for " + serverID + " is";
+        String payload = "hb for " + serverID + " is " + WorkerServer.hbManager.getSleepTimeAllWorkers();
         hb.setPayload(ByteString.copyFromUtf8(payload));
         return hb.build();
     }
@@ -167,11 +167,11 @@ public class WorkerServer extends RouteServiceImplBase {
 	}
 
 	private void initializeHBManager() {
-		hbManager = new Worker(this, Worker.WorkerType.HBManager);
+		WorkerServer.hbManager = hbManager == null ? new Worker(this, Worker.WorkerType.HBManager) : hbManager;
 
-		hbManager.setWorkers(workers);
+		WorkerServer.hbManager.setWorkers(workers);
 
-		hbManager.start();
+		WorkerServer.hbManager.start();
 	}
 
 	//Decide which worker will handle the request based on heartbeats
@@ -181,7 +181,7 @@ public class WorkerServer extends RouteServiceImplBase {
 		int index = 0;
 		int workerIndexLowestSleep = index;
 		//Go through each worker's heartbeats
-		for (Work hb : hbManager.getWorks()) {
+		for (Work hb : WorkerServer.hbManager.getWorks()) {
 			//Convert byte array to string representation
 			String hbStatus = hb.payload.toString();
 
