@@ -87,7 +87,7 @@ public class Worker extends Thread {
             // initialize the response routing/header information
             route.Route.Builder builder = route.Route.newBuilder();
             builder.setId(RouteServer.getInstance().getNextMessageID());
-            builder.setOrigin(w.fromId);
+            builder.setOrigin(_server.serverID);
             builder.setDestination(w.toId);
 
             // do the work

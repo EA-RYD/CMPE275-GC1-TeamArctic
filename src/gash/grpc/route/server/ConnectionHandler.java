@@ -48,8 +48,9 @@ public class ConnectionHandler extends Thread {
 				@Override
 				public void onNext(route.Route msg) {
 					var payload = new String(msg.getPayload().toByteArray());
+					long messageId = msg.getId();
 					long serverId = msg.getOrigin();
-					ConnectionHandler.this.notify("Received response from server " + serverId + ": " + payload);
+					ConnectionHandler.this.notify("Received response for message " + messageId + " from server " + serverId + ": " + payload);
 				}
 
 				@Override
@@ -73,9 +74,9 @@ public class ConnectionHandler extends Thread {
 				Route.Builder bld = Route.newBuilder();
 
 				// let Client know ServerHook received message
-				out.write("ServerHook received message: " + json.getLong("id"));
-				out.write('\n');
-				out.flush();
+				// out.write("ServerHook received message: " + json.getLong("id"));
+				// out.write('\n');
+				// out.flush();
 
 				// JsonFormat.parser().merge(message, bld);
 
@@ -99,7 +100,7 @@ public class ConnectionHandler extends Thread {
 	}
 	
 	public void notify(String reply) {
-		out.write("Response from GRPC server: " + reply);
+		out.write(reply);
 		out.write('\n');
 		out.flush();
 	}
