@@ -1,53 +1,65 @@
 package gash.grpc.route.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
-import java.util.concurrent.LinkedBlockingDeque;
-
-import org.json.JSONObject;
-
-/**
- * 
- * for testing purposes
- *
- */
 
 public class TmpServerHook {
-	private Properties setup;
+	protected static int port;
+	protected static int destination;	// grpc leader server port
 	private ServerSocket socket;
 	
-	private LinkedBlockingDeque<JSONObject> que;
-	
-	public TmpServerHook(Properties setup) {
-		this.setup = setup;
+    /**
+	* Configuration of the server hook's port
+	*/
+	private static Properties getConfiguration(final File path) throws IOException {
+		if (!path.exists())
+			throw new IOException("missing config file for server hook");
+
+		Properties rtn = new Properties();
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(path);
+			rtn.load(fis);
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		return rtn;
 	}
 	
-	// original client uses this 
-    //maybe just adds request to queue?
-    // put thread places request in server
-    public void request(String json) {
-        // TODO
-        
-        
-    }
+	private static void configure(Properties prop) {
+        String tmp = prop.getProperty("server.port");
+        port = Integer.parseInt(tmp);
+        String dest = prop.getProperty("server.destination");
+        destination = Integer.parseInt(dest);
+	}
     
     public void start() {
-    	if (setup == null)
+    	if (port == 0 && destination == 0)
 			throw new RuntimeException("Missing configuration properties");
 
 		try {
-			int port = Integer.parseInt(setup.getProperty("port"));
+			System.out.println("-- starting server hook on port " + port);
 			socket = new ServerSocket(port);
 
 			while (true) {
 				Socket s = socket.accept();
 
-				System.out.println("--> server got a client connection");
+				System.out.println("--> server hook got a client connection");
 				System.out.flush();
 				
 				// pass client connection to a connection handler
-				ConnectionHandler ch = new ConnectionHandler(s);	// maybe pass this class to ConnectionHandler?
+				ConnectionHandler ch = new ConnectionHandler(s, destination);
 				ch.start();
 			}
 		} catch (Exception e) {
@@ -56,10 +68,16 @@ public class TmpServerHook {
     }
     
 	public static void main(String[] args) {
-		Properties p = new Properties();
-		p.setProperty("port", "2100");
+		String path = args[0];
+		try {
+			Properties conf = TmpServerHook.getConfiguration(new File(path));
+			TmpServerHook.configure(conf);
 
-		TmpServerHook serverHook = new TmpServerHook(p);
-		serverHook.start();
+			final TmpServerHook serverHook = new TmpServerHook();
+			serverHook.start();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
