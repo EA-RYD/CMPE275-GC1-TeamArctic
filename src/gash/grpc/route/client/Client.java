@@ -9,6 +9,9 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -50,6 +53,10 @@ public class Client {
 			
 			// configuring logger
 			logger.setUseParentHandlers(false);
+			Path p = Paths.get("logs", "client" + clientID + ".log");
+			if (!Files.exists(p.getParent())) {
+				Files.createDirectory(p.getParent());
+			}
 	        FileHandler fh = new FileHandler("logs/client" + clientID + ".log");  
 	        logger.addHandler(fh);
 	        SimpleFormatter formatter = new SimpleFormatter();  
