@@ -22,8 +22,8 @@ public class WorkerServer extends RouteServiceImplBase {
     private List<Worker> workers = new ArrayList<>();
     protected static int serverID;
     protected static int leaderID;
-    protected static RouteServiceGrpc.RouteServiceStub comm;
-    private static Worker hbManager;
+    protected RouteServiceGrpc.RouteServiceStub comm;
+    private Worker hbManager;
 
     /**
 	* Configuration of the server's identity, port, and role
@@ -74,23 +74,27 @@ public class WorkerServer extends RouteServiceImplBase {
 
     private void setup() {
         ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", RouteServer.getInstance().getServerDestination()).usePlaintext().build();
-		WorkerServer.comm = comm == null ? RouteServiceGrpc.newStub(ch) : comm;
+		comm = RouteServiceGrpc.newStub(ch);
 		System.out.println("Worker server " + serverID + " connected to leader " + leaderID);
-		System.out.println("comm set up successfully? " + (WorkerServer.comm != null));
+		System.out.println("comm set up successfully? " + (comm != null));
     }
 
     private void start() throws Exception {
         initializeWorkers();
         initializeHBManager();
-		svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(new WorkerServer())
+		// svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(new WorkerServer())
+		svr = ServerBuilder.forPort(RouteServer.getInstance().getServerPort()).addService(this)
 				.build();
 
 		System.out.println("-- starting worker server " + serverID + " on port " + RouteServer.getInstance().getServerPort());
 		svr.start();
 
         for (Worker w : workers) {
+			System.out.println("starting worker " + w.getId());
             w.start();
         }
+
+		this.hbManager.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -137,7 +141,7 @@ public class WorkerServer extends RouteServiceImplBase {
         } else {
             // This is not the destination, forward the request to the next server
 			System.out.println("-- Forwarding request to next server: " + request.getDestination() + "\n\n");
-			WorkerServer.comm.request(request, responseObserver);
+			comm.request(request, responseObserver);
         }
 	}
 
@@ -147,7 +151,8 @@ public class WorkerServer extends RouteServiceImplBase {
         hb.setDestination(leaderID);
         hb.setWorkType(5);
         // TODO: get the playload for the HB 
-        String payload = "hb for " + serverID + " is " + WorkerServer.hbManager.getSleepTimeAllWorkers();
+		String payload = "hb for " + serverID + " is " + this.hbManager.getSleepTimeAllWorkers();
+
         hb.setPayload(ByteString.copyFromUtf8(payload));
         return hb.build();
     }
@@ -167,11 +172,9 @@ public class WorkerServer extends RouteServiceImplBase {
 	}
 
 	private void initializeHBManager() {
-		WorkerServer.hbManager = hbManager == null ? new Worker(this, Worker.WorkerType.HBManager) : hbManager;
+		this.hbManager = new Worker(this, Worker.WorkerType.HBManager);
 
-		WorkerServer.hbManager.setWorkers(workers);
-
-		WorkerServer.hbManager.start();
+		this.hbManager.setWorkers(workers);
 	}
 
 	//Decide which worker will handle the request based on heartbeats
@@ -181,9 +184,9 @@ public class WorkerServer extends RouteServiceImplBase {
 		int index = 0;
 		int workerIndexLowestSleep = index;
 		//Go through each worker's heartbeats
-		for (Work hb : WorkerServer.hbManager.getWorks()) {
+		for (Work hb : this.hbManager.getWorks()) {
 			//Convert byte array to string representation
-			String hbStatus = hb.payload.toString();
+			String hbStatus = new String(hb.payload);
 
 			String[] hbStatusArr = hbStatus.split(" ");
 
