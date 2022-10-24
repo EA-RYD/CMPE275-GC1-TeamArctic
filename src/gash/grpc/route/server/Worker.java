@@ -12,7 +12,7 @@ public class Worker extends Thread {
         Worker, HBManager
     }
 
-    public static final int maxWorkSize = 10;
+    public static final int maxWorkSize = 50;
 
     //List of work for worker threads, list of heartbeats for HBManager
     private LinkedBlockingDeque<Work> works;
@@ -53,7 +53,7 @@ public class Worker extends Thread {
                 updateHBQueue();
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

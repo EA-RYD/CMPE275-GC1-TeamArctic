@@ -24,6 +24,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
 
     //might need to make some of these static
     protected final static int id = 1; //server id (used in requests)
+    private static final int ConcurrentHashMap = 0;
     protected static LinkedBlockingDeque<QPair> que ; // que of requests
     protected static ConcurrentHashMap<Integer,Integer> networkStatus ; //Key: ID of server, Value: Heartbeat status
     private Server svr; // actual server
@@ -75,13 +76,15 @@ public class RouteLeaderServer extends RouteServiceImplBase {
                             @Override
                             public void onNext(route.Route newMsg) {
                                 System.out.println("HB reply received for server: " + newMsg.getOrigin());
-                                System.out.println("HB response content: hb for " + newMsg.getOrigin() + " is " + new String(newMsg.getPayload().toByteArray()));
+                                //System.out.println("HB response content: hb for " + newMsg.getOrigin() + " is " + new String(newMsg.getPayload().toByteArray()));
+                    
                                 hbMap.put((int) newMsg.getOrigin(), Integer.valueOf(new String(newMsg.getPayload().toByteArray()))); 
+                                debugHB(hbMap);
                             }
                             
                         }); 
                     }
-                    Thread.sleep(1000); //sleeps for 1 seconds
+                    Thread.sleep(500); //sleeps for 1 seconds
                 } catch (Exception e) {
                     System.err.println("Exception in HBMonitor:\n" + e.getMessage());
                 }
@@ -188,9 +191,16 @@ public class RouteLeaderServer extends RouteServiceImplBase {
 
         // Algo for determining best server for sending work based off of heartbeat map
         private Integer findLeastBusyServer() {
+            //System.out.println("FLBS MAP POINT");
+            //debugHB(map);
             int minHB = Integer.MAX_VALUE, minHBServer = -1; 
-            for (Map.Entry<Integer,Integer> entry : map.entrySet()) //random order
-                minHBServer = (entry.getValue() < minHB) ? entry.getKey() : minHBServer;
+            for (Map.Entry<Integer,Integer> entry : map.entrySet())  {
+                if (entry.getValue() < minHB) {
+                    minHB = entry.getValue();
+                    minHBServer = entry.getKey();
+                }
+            }
+            System.out.println("Min Server detected: " + minHBServer + " with value "  + minHB);
             return minHBServer;
         }
         
@@ -225,6 +235,12 @@ public class RouteLeaderServer extends RouteServiceImplBase {
     private void setupNetworkStatus(ConcurrentHashMap<Integer,Integer> map) {
         for (int i = 2; i < 6; i++) 
             map.put(i, 0);
+    }
+
+    public static void debugHB(ConcurrentHashMap<Integer,Integer> map) {
+        for (Map.Entry<Integer,Integer> e : map.entrySet()) {
+            System.out.println("Key: " + e.getKey() + " Value: " + e.getValue());
+        }
     }
 
     /**
