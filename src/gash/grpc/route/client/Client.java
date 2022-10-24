@@ -55,14 +55,16 @@ public class Client {
 			json.put("origin", Client.clientID);
 			json.put("destination", "somewhere");
 			json.put("path", "/to/somewhere");
-			json.put("workType" , 1);
+			json.put("workType" , i % 4 + 1);
 			json.put("payload", "Hello");	// how to store it so that it is compatible with .proto type bytes?
 			
 			try {
 				out.write(json.toString());
 				out.write('\n');
 				out.flush();
-			} catch (IOException e) {
+				System.out.println("Sent request: " + i);
+				Thread.sleep(1000);
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

@@ -151,7 +151,7 @@ public class WorkerServer extends RouteServiceImplBase {
         hb.setDestination(leaderID);
         hb.setWorkType(5);
         // TODO: get the playload for the HB 
-		String payload = "hb for " + serverID + " is " + this.hbManager.getSleepTimeAllWorkers();
+		String payload = String.valueOf(this.hbManager.getSleepTimeAllWorkers());
 
         hb.setPayload(ByteString.copyFromUtf8(payload));
         return hb.build();

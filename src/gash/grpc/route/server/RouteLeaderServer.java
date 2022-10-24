@@ -75,7 +75,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
                             @Override
                             public void onNext(route.Route newMsg) {
                                 System.out.println("HB reply received for server: " + newMsg.getOrigin());
-                                System.out.println("HB response content: " + new String(newMsg.getPayload().toByteArray()));
+                                System.out.println("HB response content: hb for " + newMsg.getOrigin() + " is " + new String(newMsg.getPayload().toByteArray()));
                                 hbMap.put((int) newMsg.getOrigin(), Integer.valueOf(new String(newMsg.getPayload().toByteArray()))); 
                             }
                             
