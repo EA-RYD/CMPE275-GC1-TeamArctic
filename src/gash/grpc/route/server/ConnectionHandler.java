@@ -48,9 +48,8 @@ public class ConnectionHandler extends Thread {
 				@Override
 				public void onNext(route.Route msg) {
 					var payload = new String(msg.getPayload().toByteArray());
-					long msgId = msg.getId();
 					long serverId = msg.getOrigin();
-					ConnectionHandler.this.notify("Received response for message " + msgId + " from server " + serverId + ": " + payload);
+					ConnectionHandler.this.notify("Received response from server " + serverId + ": " + payload);
 				}
 
 				@Override
@@ -100,7 +99,7 @@ public class ConnectionHandler extends Thread {
 	}
 	
 	public void notify(String reply) {
-		out.write(reply);
+		out.write("Response from GRPC server: " + reply);
 		out.write('\n');
 		out.flush();
 	}

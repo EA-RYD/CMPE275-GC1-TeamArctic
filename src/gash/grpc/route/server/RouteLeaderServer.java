@@ -84,7 +84,7 @@ public class RouteLeaderServer extends RouteServiceImplBase {
                             
                         }); 
                     }
-                    Thread.sleep(100); //sleeps for 1 second
+                    Thread.sleep(500); //sleeps for 1 seconds
                 } catch (Exception e) {
                     System.err.println("Exception in HBMonitor:\n" + e.getMessage());
                 }
