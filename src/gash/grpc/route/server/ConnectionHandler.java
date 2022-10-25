@@ -38,6 +38,30 @@ public class ConnectionHandler extends Thread {
 		this.connection = connection;
 		this.destination = destination;
 		this.id = id;
+
+		// configuring logger
+			logger.setUseParentHandlers(false);
+			Path p = Paths.get("logs", "connection" + id + ".log");
+			if (!Files.exists(p.getParent())) {
+				try {
+					Files.createDirectory(p.getParent());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			try {
+				FileHandler fh = new FileHandler("logs/connection" + id + ".log");
+				logger.addHandler(fh);
+	        	SimpleFormatter formatter = new SimpleFormatter();  
+	        	fh.setFormatter(formatter);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
 	}
 
 	@Override
@@ -50,16 +74,7 @@ public class ConnectionHandler extends Thread {
 			if (in == null || out == null)
 				throw new RuntimeException("Unable to get in/out streams");
 			
-			// configuring logger
-			logger.setUseParentHandlers(false);
-			Path p = Paths.get("logs", "connection" + id + ".log");
-			if (!Files.exists(p.getParent())) {
-				Files.createDirectory(p.getParent());
-			}
-	        FileHandler fh = new FileHandler("logs/connection" + id + ".log");  
-	        logger.addHandler(fh);
-	        SimpleFormatter formatter = new SimpleFormatter();  
-	        fh.setFormatter(formatter);
+			
 
 			ManagedChannel ch = ManagedChannelBuilder.forAddress("localhost", destination).usePlaintext().build();
 			RouteServiceGrpc.RouteServiceStub stub = RouteServiceGrpc.newStub(ch);
@@ -67,8 +82,9 @@ public class ConnectionHandler extends Thread {
 			StreamObserver<route.Route> responseObserver = new StreamObserver<route.Route>() {
 				@Override
 				public void onNext(route.Route msg) {
+					System.out.println(msg.getId());
 					var payload = new String(msg.getPayload().toByteArray());
-					long messageId = msg.getId();
+					int messageId = (int) msg.getId();
 					long serverId = msg.getOrigin();
 					String message = "Received response for message " + messageId + " from server " + serverId + ": " + payload;
 					logger.info(message);

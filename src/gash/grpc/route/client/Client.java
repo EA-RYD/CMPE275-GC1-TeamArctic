@@ -69,7 +69,7 @@ public class Client {
 	}
 	
 	public void run() {	
-		int times = 50;
+		int times = 100;
 		for (int i = 0; i < times; i++) {
 			JSONObject json = new JSONObject();
 			json.put("id", i);
@@ -84,7 +84,7 @@ public class Client {
 				out.write('\n');
 				out.flush();
 				System.out.println("Sent request: " + i);
-				Thread.sleep(90);
+				Thread.sleep(50);
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
