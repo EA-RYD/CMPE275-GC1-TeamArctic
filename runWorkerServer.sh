@@ -17,7 +17,7 @@ echo server home = $SVR_HOME
 
 #cd ${SVR_HOME}
 
-JAVA_MAIN=' gash.grpc.route.server.RouteServerImpl'
+JAVA_MAIN=' gash.grpc.route.server.WorkerServer'
 JAVA_ARGS="$1"
 echo -e "\n** config: ${JAVA_ARGS} **\n"
 
