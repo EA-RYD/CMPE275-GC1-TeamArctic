@@ -11,6 +11,7 @@ public class TmpServerHook {
 	protected static int port;
 	protected static int destination;	// grpc leader server port
 	private ServerSocket socket;
+	private long idGenerator = 1;
 	
     /**
 	* Configuration of the server hook's port
@@ -59,7 +60,7 @@ public class TmpServerHook {
 				System.out.flush();
 				
 				// pass client connection to a connection handler
-				ConnectionHandler ch = new ConnectionHandler(s, destination);
+				ConnectionHandler ch = new ConnectionHandler(s, destination, idGenerator++);
 				ch.start();
 			}
 		} catch (Exception e) {

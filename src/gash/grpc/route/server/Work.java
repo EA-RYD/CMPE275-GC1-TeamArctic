@@ -39,7 +39,8 @@ public class Work {
     public Work(StreamObserver<route.Route> rs, route.Route ro) {
         this.responseObserver = rs;
         this.request = ro;
-        this.workId = sIdGen.incrementAndGet();
+        // this.workId = sIdGen.incrementAndGet();
+        this.workId = (int)ro.getId();
         this.fromId = ro.getOrigin();
         this.toId = ro.getDestination();
         this.isA = routeMap.containsKey(ro.getWorkType()) ? routeMap.get(ro.getWorkType()) : WorkType.Unknown;
